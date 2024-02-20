@@ -6,6 +6,7 @@ namespace CBRService.Services
 {
     public class CurrencyService
     {
+        private static readonly int _pageSize = 10;
         private readonly IMemoryCache _memoryCache;
         private readonly HttpClient   _httpClient;
 
@@ -17,13 +18,14 @@ namespace CBRService.Services
 
         public async Task<List<Valute>?> GetCurrenciesAsync(int page)
         {
-            int pageSize = 10;
+            if (page < 1)
+                return null;
             var data = await GetDataAsync();
             if (data is null)
                 return null;
             return data.Valute.Select(v => v.Value)
-                              .Skip(page * pageSize)
-                              .Take(pageSize)
+                              .Skip((page - 1) * _pageSize)
+                              .Take(_pageSize)
                               .ToList();
         }
 
@@ -41,7 +43,7 @@ namespace CBRService.Services
             var success = _memoryCache.TryGetValue("dictionary", out CurrencyData? data);
             if (!success || DateTime.Now.Date != data?.Timestamp.Date)
             {
-                data = await _httpClient.GetFromJsonAsync<CurrencyData?>("");
+                data = await _httpClient.GetFromJsonAsync<CurrencyData?>(string.Empty);
                 if (data is not null)
                     _memoryCache.Set("dictionary", data, TimeSpan.FromHours(1.0f));
             }

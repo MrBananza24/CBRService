@@ -20,18 +20,14 @@ namespace CBRService.Controllers
         public async Task<ActionResult<List<Valute>>> GetCurrencies([FromQuery] int page)
         {
             var currencies = await _currencyService.GetCurrenciesAsync(page);
-            if (currencies is null)
-                return NotFound();
-            return Ok(currencies);
+            return currencies is null ? NotFound() : Ok(currencies);
         }
 
         [HttpGet("{code}")]
         public async Task<ActionResult<Valute>> GetCurrency(string code)
         {
             var currency = await _currencyService.GetCurrencyAsync(code);
-            if (currency is null)
-                return NotFound();
-            return Ok(currency);
+            return currency is null ? NotFound() : Ok(currency);
         }
     }
 }
